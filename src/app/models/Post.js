@@ -4,6 +4,8 @@ import MongooseDelete from 'mongoose-delete';
 
 const Schema = mongoose.Schema;
 
+mongoose.plugin(slug);
+
 const PostSchema = new Schema(
     {
         title: { type: String, required: true },
@@ -19,8 +21,6 @@ const PostSchema = new Schema(
         timestamps: true,
     },
 );
-
-mongoose.plugin(slug);
 
 PostSchema.plugin(MongooseDelete, { deletedAt: true, overrideMethods: 'all' });
 

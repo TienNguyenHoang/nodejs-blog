@@ -7,6 +7,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import route from './routes/index.js';
+import db from './config/db.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -29,6 +30,8 @@ app.use(expressLayout);
 app.set('layout', 'layouts/main');
 
 route(app);
+
+db.connect();
 
 app.listen(port, () => {
     console.log(`App listening on port ${port}`);
