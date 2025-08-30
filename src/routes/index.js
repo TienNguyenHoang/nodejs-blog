@@ -1,7 +1,7 @@
-import { index } from '../app/controllers/HomeController.js'
+import { index } from '../app/controllers/HomeController.js';
 
 function route(app) {
     app.get('/', index);
 }
 
-export default route
+export default route;

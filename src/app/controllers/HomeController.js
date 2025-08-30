@@ -1,7 +1,13 @@
-const index = (req,res,next) => {
-    res.send('Home page');
-}
+const index = (req, res, next) => {
+    res.render('home', {
+        title: 'Trang chủ',
+    });
+};
 
-export {
-    index
-}
+const about = (req, res, next) => {
+    res.render('about', {
+        title: 'Về chúng tôi',
+    });
+};
+
+export { index };
