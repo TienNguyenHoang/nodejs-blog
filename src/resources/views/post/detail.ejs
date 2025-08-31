@@ -1,0 +1,19 @@
+<div class="container">
+    <div class="my-4 text-center">
+        <h5><%= post.category%></h5>
+        <h1><%= post.title%></h1>
+        <div class="d-flex justify-content-center">
+            <p>
+                <i class="fa-solid fa-user"></i
+                ><%= post.author.username%>
+            </p>
+            <p class="ms-5">
+                <i class="fa-solid fa-clock"></i
+                ><%= new Date(post.createdAt).toLocaleDateString("vi-VN")%>
+            </p>
+        </div>
+    </div>
+    <div class="post-detail-container">
+        <%- post.content%>
+    </div>
+</div>

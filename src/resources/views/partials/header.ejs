@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg">
+<nav class="navbar navbar-expand-lg sticky-top shadow-lg p-3 mb-5 bg-light-subtle rounded">
     <div class="container">
         <a class="navbar-brand" href="/">Blog</a>
         <button
@@ -13,29 +13,35 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0 d-flex justify-content-between">
+            <ul class="navbar-nav mb-2 mb-lg-0 d-flex justify-content-between">
                 <li class="nav-item">
                     <a class="nav-link active" aria-current="page" href="/">Trang chủ</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Bài đăng</a>
+                    <a class="nav-link" href="/posts">Bài đăng</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Liên hệ</a>
-                </li>
-                <li class="nav-item">
-                    <form class="d-flex" role="search">
-                        <input
-                            class="form-control me-2"
-                            type="search"
-                            placeholder="Search"
-                            aria-label="Search"
-                        />
-                        <button class="btn btn-outline-success" type="submit">Search</button>
-                    </form>
+                    <a class="nav-link" href="/contact">Liên hệ</a>
                 </li>
             </ul>
-            <div class="dropdown">
+
+            <form role="search" action="/posts" class="mx-lg-auto py-2 w-50">
+                <div class="position-relative">
+                    <i
+                        class="fa-solid fa-magnifying-glass position-absolute top-50 ms-3 translate-middle"
+                    ></i>
+                    <input
+                        class="form-control"
+                        type="search"
+                        placeholder="Search"
+                        aria-label="Search"
+                        name="search"
+                        style="padding-left: 1.8rem"
+                    />
+                </div>
+            </form>
+
+            <div class="dropdown py-2">
                 <a
                     class="nav-link dropdown-toggle"
                     href="#"
@@ -46,7 +52,7 @@
                     Tiến Nguyễn
                 </a>
                 <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#">Action</a></li>
+                    <li><a class="dropdown-item" href="/posts/create">Tạo bài viết</a></li>
                     <li><a class="dropdown-item" href="#">Another action</a></li>
                     <li><hr class="dropdown-divider" /></li>
                     <li><a class="dropdown-item" href="#">Something else here</a></li>

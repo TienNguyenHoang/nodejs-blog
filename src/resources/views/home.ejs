@@ -7,37 +7,56 @@
     <img
         src="/img/hero-image.webp"
         alt="person looking out through window"
-        class="img-fluid rounded mx-auto d-block"
+        class="img-fluid rounded mx-auto w-75 d-block"
     />
 
     <section class="d-block w-75 mx-auto mt-5">
-        <h2>Bài đăng mới nhất</h2>
+        <h2 class="mb-3">Bài đăng mới nhất</h2>
         <ul class="list-unstyled">
             <% posts.forEach(post => { %>
-            <li class="d-flex justify-content-between my-4">
-                <div class="d-flex">
-                    <img
-                        src="<%= post.coverImage%>"
-                        alt="Cover Image"
-                        class="img-thumbnail rounded"
-                        width="50"
-                        height="50"
-                    />
-                    <div class="ms-2">
-                        <h5 class="mb-1">
-                            <a href="/posts/<%= post.slug%>" class=""> <%= post.title %> </a>
-                        </h5>
-                        <p class="mb-1 text-muted"><%= post.description %></p>
+            <li class="card mb-3 h-75">
+                <div class="row g-0">
+                    <div class="col-md-12">
+                        <div class="card-body">
+                            <div class="card-title d-flex justify-content-between">
+                                <a class="w-100 h5 text-primary" href="/posts/<%= post.slug%>"
+                                    ><%= post.title%></a
+                                >
+                                <div>
+                                    <%= post.category%>
+                                </div>
+                            </div>
+                            <p class="card-text">
+                                <%= post.description%> Lorem ipsum dolor sit, amet consectetur
+                                adipisicing elit. Placeat commodi natus similique autem ut
+                                voluptatum laborum ducimus numquam doloremque nam fuga, aliquid
+                                reprehenderit suscipit necessitatibus eius, illo explicabo et iste.
+                                orem ipsum dolor sit, amet consectetur adipisicing elit. Placeat
+                            </p>
+                            <p class="card-text d-flex justify-content-between">
+                                <small class="text-body-secondary">
+                                    <strong
+                                        >Tác giả:
+                                        <%=post.author.username%></strong
+                                    ></small
+                                >
+                                <small class="text-body-secondary">
+                                    <span><i class="fa-solid fa-clock"></i> </span
+                                    ><%=
+                                    new Date(post.createdAt).toLocaleDateString("vi-VN")%></small
+                                >
+                            </p>
+                            <p>
+                                <i class="fa-solid fa-tag"></i>
+                                <%=post.tags%>
+                            </p>
+                        </div>
                     </div>
                 </div>
-                <small class="">
-                    <strong><%= post.author.username %></strong> |
-                    <%= new Date(post.createdAt).toLocaleDateString("vi-VN") %>
-                </small>
             </li>
             <% }) %>
             <li class="text-center">
-                <a href="/posts">Xem tất cả</a>
+                <a class="h4 text-primary" href="/posts">Xem tất cả</a>
             </li>
         </ul>
     </section>

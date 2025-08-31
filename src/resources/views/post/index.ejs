@@ -1,0 +1,81 @@
+<div class="d-block w-75 mx-auto mt-5">
+    <% if (totalPosts > 0) { %>
+    <h2 class="mb-3">
+        <%= search === '' ? 'Danh sách bài viết' : 'Có '+ totalPosts +' bài viết được tìm thấy!'%>
+    </h2>
+    <ul class="list-unstyled">
+        <% if (posts.length > 0) { %> <% posts.forEach(post => { %>
+        <li class="card mb-3 h-75">
+            <div class="row g-0">
+                <div class="col-md-12">
+                    <div class="card-body">
+                        <div class="card-title d-flex justify-content-between">
+                            <a class="w-100 h5 text-primary" href="/posts/<%= post.slug%>"
+                                ><%= post.title%></a
+                            >
+                            <div>
+                                <%= post.category%>
+                            </div>
+                        </div>
+                        <p class="card-text"><%= post.description%></p>
+                        <p class="card-text d-flex justify-content-between">
+                            <small class="text-body-secondary">
+                                <strong
+                                    >Tác giả:
+                                    <%=post.author.username%></strong
+                                ></small
+                            >
+                            <small class="text-body-secondary">
+                                <span><i class="fa-solid fa-clock"></i> </span
+                                ><%=
+                                    new Date(post.createdAt).toLocaleDateString("vi-VN")%></small
+                            >
+                        </p>
+                        <p>
+                            <i class="fa-solid fa-tag"></i>
+                            <%=post.tags%>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </li>
+        <% }) %>
+        <% } else { %>
+        <p>Không tìm thấy bài viết nào.</p>
+        <% } %>
+    </ul>
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+            <li class="page-item">
+                <a
+                    class="page-link <%= currentPage > 1 ? '' : 'disabled'%>"
+                    href="/posts?page=<%= currentPage > 1 ? currentPage - 1 : 1 %>&search=<%= search %>"
+                    aria-label="Previous"
+                >
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            <% for(let i = 1; i <= totalPages; i++) { %>
+            <li class="page-item">
+                <a
+                    class="page-link <%= i === currentPage ? 'active' : '' %>"
+                    href="/posts?page=<%= i %>&search=<%= search %>"
+                    ><%= i%></a
+                >
+            </li>
+            <% } %>
+            <li class="page-item">
+                <a
+                    class="page-link <%= currentPage < totalPages ? '' : 'disabled'%>"
+                    href="/posts?page=<%= currentPage < totalPages ? currentPage + 1 : 1 %>&search=<%= search %>"
+                    aria-label="Next"
+                >
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <% } else { %>
+    <h1 class="mx-auto text-center">Không tìm thấy bài viết nào.</h1>
+    <% } %>
+</div>

@@ -1,8 +1,9 @@
-import { index } from '../app/controllers/user/HomeController.js';
+import siteRouter from './site.js'
+import postsRouter from './posts.js'
 
 function route(app) {
-    app.get('/post/:slug', index);
-    app.get('/', index);
+    app.use('/posts', postsRouter);
+    app.use('/', siteRouter);
 }
 
 export default route;

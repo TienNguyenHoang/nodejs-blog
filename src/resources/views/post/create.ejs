@@ -1,0 +1,130 @@
+<div class="container">
+    <form action="/posts/store" method="POST" id="postForm">
+        <% if (typeof errors !== 'undefined' && Object.keys(errors).length > 0) { %>
+        <ul class="text-danger">
+            <% Object.keys(errors).forEach(function(key) { %>
+            <li><%= errors[key] %></li>
+            <% }) %>
+        </ul>
+        <% } %>
+        <div class="mb-3">
+            <label for="title" class="form-label">Tiêu đề</label>
+            <input
+                type="text"
+                class="form-control"
+                name="title"
+                placeholder="Nhập tiêu đề..."
+                value="<%= typeof data !== 'undefined' ? data.title : '' %>"
+                required
+            />
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Mô tả</label>
+            <textarea name="description" class="form-control" placeholder="Nhập mô tả..." required>
+            </textarea>
+        </div>
+        <div class="mb-3">
+            <label for="tags" class="form-label">Tags</label>
+            <div class="input-group mb-2">
+                <input type="text" id="tagInput" class="form-control" placeholder="Nhập tag..." />
+                <button class="btn btn-outline-secondary" type="button" id="addTagBtn">Thêm</button>
+            </div>
+            <div id="tagsList" class="d-flex flex-wrap gap-2"></div>
+        </div>
+
+        <div id="tagsHidden"></div>
+
+        <div class="mb-3">
+            <label for="category" class="form-label">Thể loại</label>
+            <input
+                type="text"
+                class="form-control"
+                name="category"
+                placeholder="Nhập thể loại..."
+                value="<%= typeof data !== 'undefined' ? data.category : '' %>"
+                required
+            />
+        </div>
+
+        <div class="mb-3">
+            <label for="content" class="form-label">Nội dung</label>
+            <div class="main-container">
+                <div
+                    class="editor-container editor-container_classic-editor editor-container_include-style editor-container_include-word-count editor-container_include-fullscreen"
+                    id="editor-container"
+                >
+                    <div class="editor-container__editor"><div id="editor"></div></div>
+                </div>
+            </div>
+            <input type="hidden" name="content" id="contentInput" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Đăng bài</button>
+    </form>
+</div>
+
+<script>
+
+    const oldData = {
+        description: `<%= typeof data !== 'undefined' ? data.description.replace(/`/g, '\\`') : '' %>`,
+        tags: <%- typeof data !== 'undefined' && data.tags ? JSON.stringify(data.tags) : '[]' %>,
+    };
+
+    window.oldData = <%- JSON.stringify(typeof data !== 'undefined' ? data : {}) %>;
+
+    console.log("oldData:", oldData)
+
+    document.querySelector('textarea[name="description"]').value = oldData.description;
+
+    const tagInput = document.getElementById('tagInput');
+    const addTagBtn = document.getElementById('addTagBtn');
+    const tagsList = document.getElementById('tagsList');
+    const tagsHidden = document.getElementById('tagsHidden');
+
+    let tags = oldData.tags || [];
+
+    function renderTags() {
+        tagsList.innerHTML = '';
+        tagsHidden.innerHTML = '';
+
+        tags.forEach((tag, index) => {
+            const badge = document.createElement('span');
+            badge.className = 'badge bg-primary';
+            badge.innerHTML = `${tag} <button type="button" class="btn-close btn-close-white btn-sm ms-1" onclick="removeTag(${index})"></button>`;
+            tagsList.appendChild(badge);
+
+            const hidden = document.createElement('input');
+            hidden.type = 'hidden';
+            hidden.name = 'tags[]';
+            hidden.value = tag;
+            tagsHidden.appendChild(hidden);
+        });
+    }
+
+    function removeTag(index) {
+        tags.splice(index, 1);
+        renderTags();
+    }
+
+    addTagBtn.addEventListener('click', () => {
+        const value = tagInput.value.trim();
+        if (value && !tags.includes(value)) {
+            tags.push(value);
+            renderTags();
+            tagInput.value = '';
+        }
+    });
+
+    tagInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            addTagBtn.click();
+        }
+    });
+
+    renderTags();
+</script>
+
+<script src="https://cdn.ckeditor.com/ckeditor5/46.0.2/ckeditor5.umd.js" crossorigin></script>
+<script src="https://cdn.ckeditor.com/ckeditor5/46.0.2/translations/vi.umd.js" crossorigin></script>
+<script src="/js/editor.js"></script>
