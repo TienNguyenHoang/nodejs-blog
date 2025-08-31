@@ -1,5 +1,7 @@
 import express from 'express';
 import expressLayout from 'express-ejs-layouts';
+import session from 'express-session';
+import MongoStore from 'connect-mongo';
 import morgan from 'morgan';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -8,6 +10,7 @@ dotenv.config();
 
 import route from './routes/index.js';
 import db from './config/db.js';
+import { getCurrentUser } from './middlewares/authMiddleware.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -23,6 +26,26 @@ app.use(
     }),
 );
 app.use(express.json());
+
+app.use(
+    session({
+        secret: process.env.SESSION_ID,
+        resave: false,
+        saveUninitialized: false,
+        store: MongoStore.create({
+            mongoUrl: process.env.MONGODB_URI,
+            collectionName: 'sessions',
+            ttl: 60 * 60,
+        }),
+        cookie: {
+            secure: false,
+            httpOnly: true,
+            maxAge: 1000 * 60 * 60,
+        },
+    }),
+);
+
+app.use(getCurrentUser);
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'resources', 'views'));

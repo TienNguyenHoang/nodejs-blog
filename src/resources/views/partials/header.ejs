@@ -51,7 +51,7 @@
                     />
                 </div>
             </form>
-
+            <% if (currentUser) { %>
             <div class="dropdown py-2">
                 <a
                     class="nav-link dropdown-toggle"
@@ -60,15 +60,20 @@
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
                 >
-                    Tiến Nguyễn
+                    <%= currentUser.username%>
                 </a>
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item" href="/posts/create">Tạo bài viết</a></li>
-                    <li><a class="dropdown-item" href="#">Another action</a></li>
+                    <li><a class="dropdown-item" href="/me/stored/posts">Bài viết của tôi</a></li>
+                    <li><a class="dropdown-item" href="/me/editProfile">Thông tin cá nhân</a></li>
                     <li><hr class="dropdown-divider" /></li>
-                    <li><a class="dropdown-item" href="#">Something else here</a></li>
+                    <li><a class="dropdown-item" href="/auth/logout">Đăng xuất</a></li>
                 </ul>
             </div>
+            <% } else { %>
+            <a href="/auth/login" class="me-2">Đăng nhập</a>
+            <a href="/auth/register">Đăng ký</a>
+            <% } %>
         </div>
     </div>
 </nav>

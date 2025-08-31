@@ -4,7 +4,7 @@ export default (err, req, res, next) => {
     const status = err.status || 500;
     const message = err.message || 'Internal Server Error';
 
-    res.status(status).render('error', {
+    return res.status(status).render('error', {
         layout: false,
         title: 'Error',
         message,

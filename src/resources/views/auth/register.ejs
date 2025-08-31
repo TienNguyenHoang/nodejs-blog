@@ -1,0 +1,59 @@
+<div class="card shadow rounded-3">
+    <div class="card-body p-4">
+        <h3 class="mb-4 text-center">Register</h3>
+
+        <form action="/auth/register" method="POST" novalidate>
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input
+                    type="text"
+                    class="form-control"
+                    id="username"
+                    name="username"
+                    required
+                    value="<%= typeof data !== 'undefined' ? data.username : '' %>"
+                />
+            </div>
+
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input
+                    type="email"
+                    class="form-control"
+                    id="email"
+                    name="email"
+                    required
+                    value="<%= typeof data !== 'undefined' ? data.email : '' %>"
+                />
+            </div>
+
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input
+                    type="password"
+                    class="form-control"
+                    id="password"
+                    name="password"
+                    required
+                />
+            </div>
+
+            <div class="mb-3">
+                <label for="confirmPassword" class="form-label">Confirm Password</label>
+                <input
+                    type="password"
+                    class="form-control"
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    required
+                />
+            </div>
+
+            <button type="submit" class="btn btn-success w-100">Register</button>
+        </form>
+
+        <p class="text-center mt-3 mb-0">
+            Already have an account? <a href="/auth/login">Login</a>
+        </p>
+    </div>
+</div>

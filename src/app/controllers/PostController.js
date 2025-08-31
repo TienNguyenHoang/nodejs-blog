@@ -57,7 +57,7 @@ export const store = async (req, res, next) => {
         req.body.author = '68b323b5455827127c4679e5';
         const post = new Post(req.body);
         await post.save();
-        res.redirect('/');
+        return res.redirect('/');
     } catch (err) {
         if (err.name === 'ValidationError') {
             return res.render('post/create', {
@@ -67,6 +67,6 @@ export const store = async (req, res, next) => {
                 data: req.body,
             });
         }
-        res.status(500).send(err);
+        return res.status(500).send(err);
     }
 };
