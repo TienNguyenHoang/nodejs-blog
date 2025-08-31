@@ -23,6 +23,7 @@ export const index = async (req, res, next) => {
 
         res.render('post/index', {
             title: 'Bài đăng',
+            activePage: 'posts',
             posts,
             currentPage: page,
             totalPages,
@@ -37,7 +38,7 @@ export const index = async (req, res, next) => {
 export const detail = async (req, res, next) => {
     try {
         const post = await Post.findOne({ slug: req.params.slug }).populate('author', 'username');
-        res.render('post/detail', { title: post.slug, post });
+        res.render('post/detail', { title: post.slug, activePage: 'posts', post });
     } catch (err) {
         next(err);
     }
@@ -45,7 +46,7 @@ export const detail = async (req, res, next) => {
 
 export const create = async (req, res, next) => {
     try {
-        res.render('post/create', { title: 'Tạo mới bài viết' });
+        res.render('post/create', { title: 'Tạo mới bài viết', activePage: 'posts' });
     } catch (err) {
         next(err);
     }
@@ -61,6 +62,7 @@ export const store = async (req, res, next) => {
         if (err.name === 'ValidationError') {
             return res.render('post/create', {
                 title: 'Tạo mới bài viết',
+                activePage: 'posts',
                 errors: err.errors,
                 data: req.body,
             });

@@ -7,12 +7,12 @@ export const index = async (req, res, next) => {
             .populate('author', 'username')
             .sort({ createdAt: -1 })
             .limit(5);
-        res.render('home', { title: 'Trang chủ', posts });
+        res.render('home', { title: 'Trang chủ', activePage: 'home', posts });
     } catch (err) {
         next(err);
     }
 };
 
 export const contact = async (req, res, next) => {
-    res.render('contact', { title: 'Liên hệ' });
+    res.render('contact', { title: 'Liên hệ', activePage: 'contact' });
 };
