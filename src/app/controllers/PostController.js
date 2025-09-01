@@ -54,9 +54,10 @@ export const create = async (req, res, next) => {
 
 export const store = async (req, res, next) => {
     try {
-        req.body.author = '68b323b5455827127c4679e5';
+        req.body.author = req.session.user.id;
         const post = new Post(req.body);
         await post.save();
+        req.flash('success_msg', 'Tạo bài viết mới thành công!');
         return res.redirect('/');
     } catch (err) {
         if (err.name === 'ValidationError') {

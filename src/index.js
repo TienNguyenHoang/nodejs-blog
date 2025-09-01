@@ -2,6 +2,7 @@ import express from 'express';
 import expressLayout from 'express-ejs-layouts';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
+import flash from 'connect-flash';
 import morgan from 'morgan';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -44,6 +45,12 @@ app.use(
         },
     }),
 );
+
+app.use(flash(), (req, res, next) => {
+    res.locals.success_msg = req.flash('success_msg');
+    res.locals.error_msg = req.flash('error_msg');
+    next();
+});
 
 app.use(getCurrentUser);
 
