@@ -1,5 +1,4 @@
 import express from 'express';
-import { loginValidator, registerValidator } from '../middlewares/authMiddleware.js';
 
 import {
     showLoginForm,
@@ -9,6 +8,7 @@ import {
     logout,
 } from '../app/controllers/AuthController.js';
 
+import { loginValidator, registerValidator } from '../middlewares/validMiddleware.js';
 import { guestRoute } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();

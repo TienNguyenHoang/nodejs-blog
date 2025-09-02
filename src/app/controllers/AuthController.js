@@ -46,7 +46,13 @@ export const handleLogin = async (req, res, next) => {
             });
         }
 
-        req.session.user = { id: user._id.toString(), username };
+        req.session.user = {
+            id: user._id.toString(),
+            username,
+            email: user.email,
+            bio: user.bio,
+            avatar: user.avatar,
+        };
         req.flash('success_msg', 'Đăng nhập thành công!');
         return res.redirect('/');
     } catch (err) {
@@ -97,18 +103,22 @@ export const handleRegister = async (req, res, next) => {
             });
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
-
         const newUser = new User({
             username,
             email,
-            password: hashedPassword,
+            password, // UserSchema preSave hashed password
             avatar: '/img/default-avatar.jpg',
         });
 
         await newUser.save();
 
-        req.session.user = { id: newUser._id.toString(), username: newUser.username };
+        req.session.user = {
+            id: newUser._id.toString(),
+            username: newUser.username,
+            email: newUser.email,
+            bio: newUser.bio,
+            avatar: newUser.avatar,
+        };
         req.flash('success_msg', 'Đăng ký thành công, chào mừng bạn!');
         return res.redirect('/');
     } catch (err) {
@@ -117,8 +127,9 @@ export const handleRegister = async (req, res, next) => {
 };
 
 export const logout = async (req, res, next) => {
+    req.flash('success_msg', 'Đăng xuất thành công. Hẹn gặp lại!');
     req.session.destroy((err) => {
-        if (err) return res.send('Error logging out');
+        if (err) return next(err);
         res.clearCookie('connect.sid');
         res.redirect('/auth/login');
     });

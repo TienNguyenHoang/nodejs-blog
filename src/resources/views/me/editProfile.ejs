@@ -1,0 +1,81 @@
+<main class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-body p-4">
+                    <h2 class="text-center mb-4">Chỉnh sửa hồ sơ</h2>
+
+                    <% if (error) { %>
+                    <p class="text-danger"><%= error.msg %></p>
+                    <% } %>
+
+                    <form
+                        action="/me/editProfile?_method=PUT"
+                        method="POST"
+                        enctype="multipart/form-data"
+                        novalidate
+                    >
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Tên tài khoản</label>
+                            <input
+                                type="text"
+                                id="username"
+                                name="username"
+                                class="form-control"
+                                value="<%= currentUser.username %>"
+                                readonly
+                            />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                class="form-control"
+                                value="<%= oldInput.email || currentUser.email %>"
+                                required
+                            />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="bio" class="form-label">Giới thiệu</label>
+                            <textarea
+                                id="bio"
+                                name="bio"
+                                class="form-control"
+                                rows="3"
+                                placeholder="Giới thiệu ngắn về bạn..."
+                            >
+<%= oldInput.bio || currentUser.bio  %></textarea
+                            >
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="avatar" class="form-label">Ảnh đại diện</label>
+                            <input type="file" id="avatar" name="avatar" class="form-control" />
+                            <% if (currentUser.avatar) { %>
+                            <div class="mt-2">
+                                <img
+                                    src="<%= currentUser.avatar %>"
+                                    alt="Avatar"
+                                    class="rounded-circle"
+                                    width="80"
+                                    height="80"
+                                />
+                            </div>
+                            <% } %>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">Cập nhật</button>
+                    </form>
+
+                    <p class="text-center mt-2 mb-0">
+                        <a href="/me/changePassword">Đổi mật khẩu</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>

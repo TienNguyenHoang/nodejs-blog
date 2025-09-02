@@ -3,6 +3,7 @@ import expressLayout from 'express-ejs-layouts';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
 import flash from 'connect-flash';
+import methodOverride from 'method-override';
 import morgan from 'morgan';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -27,6 +28,8 @@ app.use(
     }),
 );
 app.use(express.json());
+
+app.use(methodOverride('_method'));
 
 app.use(
     session({
