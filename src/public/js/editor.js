@@ -252,13 +252,7 @@ const editorConfig = {
     },
     placeholder: 'Nhập nội dung tại đây!',
     table: {
-        contentToolbar: [
-            'tableColumn',
-            'tableRow',
-            'mergeTableCells',
-            'tableProperties',
-            'tableCellProperties',
-        ],
+        contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells', 'tableProperties', 'tableCellProperties'],
     },
 };
 

@@ -12,11 +12,7 @@ export const registerValidator = [
         .isLength({ min: 3 })
         .withMessage('Tên tài khoản phải ít nhất 3 ký tự'),
 
-    body('email')
-        .notEmpty()
-        .withMessage('Email không được để trống')
-        .isEmail()
-        .withMessage('Email không hợp lệ'),
+    body('email').notEmpty().withMessage('Email không được để trống').isEmail().withMessage('Email không hợp lệ'),
 
     body('password')
         .notEmpty()
@@ -36,11 +32,7 @@ export const registerValidator = [
 ];
 
 export const editProfileValidator = [
-    body('email')
-        .notEmpty()
-        .withMessage('Email là bắt buộc')
-        .isEmail()
-        .withMessage('Email không hợp lệ'),
+    body('email').notEmpty().withMessage('Email là bắt buộc').isEmail().withMessage('Email không hợp lệ'),
     body('bio').isLength({ max: 200 }).withMessage('Giới thiệu tối đa 200 kí tự!'),
 ];
 

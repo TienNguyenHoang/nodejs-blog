@@ -1,0 +1,136 @@
+<main class="container py-5">
+    <% if (totalPosts > 0) { %>
+    <div>
+        <a href="/me/stored/posts">Danh sách bài viết</a>
+        <h2 class="mb-3"><%= search === '' ? 'Bài viết đã xóa' : 'Có '+ totalPosts +' bài viết được tìm thấy!'%></h2>
+    </div>
+
+    <table class="table mt-4 table-striped table-light">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Tiêu đề</th>
+                <th scope="col">Tags</th>
+                <th scope="col">Thể loại</th>
+                <th scope="col">Ngày tạo</th>
+                <th scope="col">Ngày chỉnh sửa</th>
+                <th scope="col">Thời gian xóa</th>
+                <th scope="col">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% posts.forEach((post, index) => { %>
+            <tr>
+                <th scope="row"><%= (currentPage-1) * 5 + (index+1) %></th>
+                <td><%= post.title %></td>
+                <td>
+                    <% post.tags.forEach((tag, index) => { %>
+                    <span class="badge bg-primary text-center"><%= tag%></span>
+                    <% }) %>
+                </td>
+                <td><%= post.category %></td>
+                <td><%= new Date(post.createdAt).toLocaleDateString("vi-VN") %></td>
+                <td><%= new Date(post.updatedAt).toLocaleDateString("vi-VN") %></td>
+                <td><%= new Date(post.deletedAt).toLocaleDateString("vi-VN") %></td>
+                <td>
+                    <a href="#" class="btn btn-link btn-restore" data-id="<%= post._id %>">Khôi phục</a>
+                    <a
+                        href="#"
+                        class="btn btn-link"
+                        data-bs-toggle="modal"
+                        data-id="<%= post._id %>"
+                        data-bs-target="#delete-post-modal"
+                        >Xóa vĩnh viễn</a
+                    >
+                </td>
+            </tr>
+            <% }) %>
+        </tbody>
+    </table>
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+            <li class="page-item">
+                <a
+                    class="page-link <%= currentPage > 1 ? '' : 'disabled'%>"
+                    href="/me/trash/posts?page=<%= currentPage > 1 ? currentPage - 1 : 1 %>&search=<%= search %>"
+                    aria-label="Previous"
+                >
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            <% for(let i = 1; i <= totalPages; i++) { %>
+            <li class="page-item">
+                <a
+                    class="page-link <%= i === currentPage ? 'active' : '' %>"
+                    href="/me/trash/posts?page=<%= i %>&search=<%= search %>"
+                    ><%= i%></a
+                >
+            </li>
+            <% } %>
+            <li class="page-item">
+                <a
+                    class="page-link <%= currentPage < totalPages ? '' : 'disabled'%>"
+                    href="/me/trash/posts?page=<%= currentPage < totalPages ? currentPage + 1 : 1 %>&search=<%= search %>"
+                    aria-label="Next"
+                >
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <% } else { %>
+    <h3 class="mx-auto text-center">Thùng rác trống. <a href="/me/stored/posts">Danh sách bài viết</a></h3>
+    <% } %>
+</main>
+
+<!-- Confirm delete post -->
+<div id="delete-post-modal" class="modal fade" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xóa bài viết?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Hành động này không thể khôi phục. Bạn vẫn muốn xóa bài viết này?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button id="btn-delete-post" type="button" class="btn btn-danger">Xóa vĩnh viễn</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form name="delete-post-form" method="POST"></form>
+<form name="restore-post-form" method="POST"></form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        let postId;
+        const deleteForm = document.forms['delete-post-form'];
+        const restoreForm = document.forms['restore-post-form'];
+        const btnDeletePost = document.getElementById('btn-delete-post');
+        const restoreBtn = document.querySelectorAll('.btn-restore');
+
+        const deleteModal = document.getElementById('delete-post-modal');
+        deleteModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            postId = button.getAttribute('data-id');
+        });
+
+        btnDeletePost.onclick = function () {
+            deleteForm.action = '/posts/' + postId + '/force?_method=DELETE';
+            deleteForm.submit();
+        };
+
+        restoreBtn.forEach(function (btn) {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                const postId = this.getAttribute('data-id');
+                restoreForm.action = '/posts/' + postId + '/restore?_method=PATCH';
+                restoreForm.submit();
+            });
+        });
+    });
+</script>

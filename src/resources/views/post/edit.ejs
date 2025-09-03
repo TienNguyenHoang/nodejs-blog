@@ -1,5 +1,5 @@
 <div class="container">
-    <form action="/posts/store" method="POST" id="postForm" novalidate>
+    <form action="/posts/<%= post._id%>?_method=PUT" method="POST" id="postForm" novalidate>
         <% if (error) { %>
         <p class="text-danger"><%= error.message %></p>
         <% } %>
@@ -10,13 +10,13 @@
                 class="form-control"
                 name="title"
                 placeholder="Nhập tiêu đề..."
-                value="<%= oldInput && oldInput.title ? oldInput.title : '' %>"
+                value="<%= oldInput.title || post.title %>"
                 required
             />
         </div>
         <div class="mb-3">
             <label for="description" class="form-label">Mô tả</label>
-            <textarea name="description" class="form-control" placeholder="Nhập mô tả..." required></textarea>
+            <textarea name="description" class="form-control" placeholder="Nhập mô tả..." required> </textarea>
         </div>
         <div class="mb-3">
             <label for="tags" class="form-label">Tags</label>
@@ -36,7 +36,7 @@
                 class="form-control"
                 name="category"
                 placeholder="Nhập thể loại..."
-                value="<%= oldInput && oldInput.category ? oldInput.category : '' %>"
+                value="<%= oldInput.category || post.category %>"
                 required
             />
         </div>
@@ -59,12 +59,15 @@
 </div>
 
 <script>
+
     const oldData = {
-        description: `<%= oldInput && oldInput.description ? oldInput.description.replace(/`/g, '\\`') : '' %>`,
-        tags: <%- oldInput && oldInput.tags ? JSON.stringify(oldInput.tags) : '[]' %>,
+        description: `<%= (oldInput.description ? oldInput.description.replace(/`/g, '\\`') : (post.description ? post.description.replace(/`/g, '\\`') : '')) %>`,
+        tags: <%- (oldInput.tags ? JSON.stringify(oldInput.tags) : (post.tags ? JSON.stringify(post.tags) : '[]')) %>,
     };
 
-    window.oldData = <%- oldInput ? JSON.stringify(oldInput) : '{}' %>;
+    window.oldData = <%- (oldInput && Object.keys(oldInput).length > 0)
+    ? JSON.stringify(oldInput)
+    : JSON.stringify(post) %>;
 
     document.querySelector('textarea[name="description"]').value = oldData.description;
 

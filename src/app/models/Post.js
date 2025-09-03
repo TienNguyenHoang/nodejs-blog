@@ -25,9 +25,9 @@ const PostSchema = new Schema(
             type: [String],
             validate: {
                 validator: function (arr) {
-                    return arr.length > 0;
+                    return arr.length <= 4;
                 },
-                message: 'Ít nhất một tag',
+                message: 'Tối đa 4 tag',
             },
         },
         category: { type: String, required: [true, 'Thể loại không được để trống'] },
@@ -37,6 +37,11 @@ const PostSchema = new Schema(
         timestamps: true,
     },
 );
+
+PostSchema.pre('remove', async function (next) {
+    await this.model('Comment').deleteMany({ post: this._id });
+    next();
+});
 
 PostSchema.plugin(MongooseDelete, { deletedAt: true, overrideMethods: 'all' });
 
