@@ -1,15 +1,26 @@
+import mongoose from 'mongoose';
 import Post from '../models/Post.js';
+import Comment from '../models/Comment.js';
 import User from '../models/User.js';
-import { getPaginatedPosts } from '../../helpers/pagination.js';
+import { getPaginatedData } from '../../helpers/pagination.js';
+import { commentAggregate } from './CommentController.js';
+import { query } from 'express-validator';
 
 export const index = async (req, res, next) => {
     try {
-        const data = await getPaginatedPosts(req);
+        const search = req.query.search || '';
+        const query = { title: { $regex: search, $options: 'i' } };
+
+        const result = await getPaginatedData(req, Post, query, {
+            populate: { path: 'author', select: 'username' },
+            limit: 5,
+        });
 
         res.render('post/index', {
             title: 'Bài đăng',
             activePage: 'posts',
-            ...data,
+            search,
+            ...result,
         });
     } catch (err) {
         next(err);
@@ -18,8 +29,22 @@ export const index = async (req, res, next) => {
 
 export const detail = async (req, res, next) => {
     try {
-        const post = await Post.findOne({ slug: req.params.slug }).populate('author', 'username');
-        res.render('post/detail', { title: post.slug, activePage: 'posts', post });
+        const post = await Post.findOne({ slug: req.params.slug }).populate('author', 'username').lean();
+        if (!post) return next(new Error('Không tìm thấy bài viết'));
+
+        const query = { post: new mongoose.Types.ObjectId(post._id), parent: null };
+        const limit = 3;
+
+        const comments = await Comment.aggregate(commentAggregate(query, limit));
+        const commentsLeftCount = (await Comment.countDocuments(query)) - comments.length;
+
+        res.render('post/detail', {
+            title: post.slug,
+            activePage: 'posts',
+            post,
+            comments,
+            commentsLeftCount,
+        });
     } catch (err) {
         next(err);
     }

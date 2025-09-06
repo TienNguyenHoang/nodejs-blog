@@ -1,19 +1,312 @@
 <div class="container">
     <div class="my-4 text-center">
-        <h5><%= post.category%></h5>
-        <h1><%= post.title%></h1>
+        <h5><%= post.category %></h5>
+        <h1><%= post.title %></h1>
         <div class="d-flex justify-content-center">
             <p>
-                <i class="fa-solid fa-user"></i
-                ><%= post.author.username%>
+                <i class="fa-solid fa-user"></i>
+                <%= post.author.username %>
             </p>
             <p class="ms-5">
-                <i class="fa-solid fa-clock"></i
-                ><%= new Date(post.createdAt).toLocaleDateString("vi-VN")%>
+                <i class="fa-solid fa-clock"></i>
+                <%= new Date(post.createdAt).toLocaleDateString("vi-VN") %>
             </p>
         </div>
     </div>
-    <div class="post-detail-container">
-        <%- post.content%>
+
+    <div class="post-detail-container"><%- post.content %></div>
+
+    <!-- Comments -->
+    <div class="card shadow-sm mb-4 mt-5">
+        <div class="card-body">
+            <h5 class="card-title mb-3">Bình luận</h5>
+
+            <!-- form tạo comment -->
+            <form id="form-create-comment" class="mb-4" novalidate>
+                <div class="mb-3">
+                    <label for="commentContent" class="form-label">Viết bình luận</label>
+                    <textarea
+                        class="form-control"
+                        id="commentContent"
+                        name="content"
+                        rows="3"
+                        placeholder="Nhập nội dung bình luận..."
+                        required
+                    ></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Gửi</button>
+                <p id="create-error-msg" class="text-danger"></p>
+            </form>
+            <div id="comments-root" data-post-id="<%= post._id %>"></div>
+            <div id="comments-wrapper">
+                <div id="comments-list">
+                    <% if (comments && comments.length > 0) { %>
+                    <%- include('../partials/comments-list', { comments }) %>
+                    <% } %>
+                </div>
+
+                <% if (!comments || comments.length === 0) { %>
+                <p class="text-muted" id="non-comments-list">Chưa có bình luận nào, hãy là người đầu tiên bình luận!</p>
+                <% } %>
+
+                <% if (commentsLeftCount > 0) { %>
+                <button class="btn btn-link btn-load-more-comments">
+                    Xem thêm <span id="comments-left-count"><%= commentsLeftCount %></span> bình luận
+                </button>
+                <% } %>
+            </div>
+        </div>
     </div>
 </div>
+
+<!-- Modal xóa -->
+<div id="delete-comment-modal" class="modal fade" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xóa bình luận?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn chắc chắn muốn xóa bình luận này?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button id="btn-delete-comment-confirm" type="button" class="btn btn-danger">Xóa bỏ</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form name="comment-form" class="d-none" novalidate>
+    <div class="input-group">
+        <input type="text" class="form-control" name="content" />
+        <button class="btn btn-success" type="submit">Lưu</button>
+        <button class="btn btn-secondary" type="button" id="cancel-comment-form">Hủy</button>
+    </div>
+</form>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/renderComment.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const postId = '<%= post._id %>';
+        let commentId;
+        let currentCommentEl = null;
+        const commentsListEl = document.getElementById('comments-list');
+        const commentFormEl = document.forms['comment-form'];
+        const commentsLeftCountEl = document.getElementById('comments-left-count');
+        const btnDeleteCommentConfirmEl = document.getElementById('btn-delete-comment-confirm');
+        const formCreateEl = document.getElementById('form-create-comment');
+        const createErrorMsgEl = document.getElementById('create-error-msg');
+
+        // Listen Event
+        document.addEventListener('click', async (e) => {
+            const element = e.target;
+            // Load more comments
+            if (element.classList.contains('btn-load-more-comments')) {
+                e.preventDefault();
+                const lastCommentEl = commentsListEl.lastElementChild;
+                const lastCommentId = lastCommentEl ? lastCommentEl.dataset.id : undefined;
+                const res = await fetch(`/api/comments?postId=${postId}&after=${lastCommentId}&limit=3`);
+                const data = await res.json();
+                commentsListEl.insertAdjacentHTML('beforeend', data.html);
+                if (data.commentsLeftCount <= 0) element.remove();
+                else {
+                    commentsLeftCountEl.innerHTML = data.commentsLeftCount;
+                }
+            }
+
+            // Load replies rootComment
+            if (element.classList.contains('btn-load-more-replies')) {
+                e.preventDefault();
+                const parentId = element.dataset.parent;
+                const repliesList = document.getElementById(`replies-${parentId}`);
+                const lastReplyEl = repliesList.lastElementChild;
+                const lastReplyId = lastReplyEl ? lastReplyEl.dataset.id : undefined;
+                const res = await fetch(`/api/comments/replies?parentId=${parentId}&after=${lastReplyId}&limit=3`);
+                const data = await res.json();
+                document.getElementById('replies-' + parentId).insertAdjacentHTML('beforeend', data.html);
+                if (data.repliesLeftCount <= 0) element.remove();
+                else {
+                    const restRepliesCount = element.querySelector('#replies-count');
+                    restRepliesCount.innerHTML = data.repliesLeftCount;
+                }
+            }
+
+            // Load Form Reply
+            if (element.classList.contains('btn-reply-comment')) {
+                e.preventDefault();
+                commentFormEl.dataset.mode = 'reply';
+                commentId = element.dataset.id;
+                currentCommentEl = document.getElementById(`comment-content-${commentId}`);
+                currentCommentEl.appendChild(commentFormEl);
+                commentFormEl.classList.remove('d-none');
+            }
+
+            // Load Form Edit
+            if (element.classList.contains('btn-edit-comment')) {
+                e.preventDefault();
+                commentFormEl.dataset.mode = 'edit';
+                commentId = element.dataset.id;
+                currentCommentEl = document.getElementById(`comment-content-${commentId}`);
+                currentCommentEl.classList.add('d-none');
+                currentCommentEl.insertAdjacentElement('afterend', commentFormEl);
+                commentFormEl.classList.remove('d-none');
+                commentFormEl.querySelector('input[name="content"]').value = currentCommentEl.innerHTML;
+            }
+
+            // Close Form
+            if (element.id.includes('cancel-comment-form')) {
+                closeForm();
+            }
+        });
+
+        // ---- Create comment
+        formCreateEl.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const content = formCreateEl.content.value.trim();
+            const res = await fetch('/api/comments', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ postId, content }),
+            });
+            const statusCode = res.status;
+            const data = await res.json();
+            if (data.success) {
+                // toast here
+            } else {
+                if (statusCode === 401) {
+                    window.location.href = '/auth/login';
+                    return;
+                } else {
+                    createErrorMsgEl.innerHTML = data.message || 'Lỗi không xác định';
+                }
+            }
+        });
+
+        // --- Comment Form (Reply + Edit)
+        commentFormEl.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const mode = commentFormEl.dataset.mode;
+            const content = commentFormEl.content.value.trim();
+            if (mode === 'reply') {
+                replyHandler(content);
+            } else if (mode === 'edit') {
+                editHandler(content);
+            }
+        });
+
+        async function replyHandler(content) {
+            const res = await fetch(`/api/comments`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ postId, content, parentId: commentId }),
+            });
+            const statusCode = res.status;
+            const data = await res.json();
+            if (data.success) {
+                // toast here
+            } else {
+                if (statusCode === 401) {
+                    window.location.href = '/auth/login';
+                    return;
+                } else {
+                    // err msg handle here
+                }
+            }
+        }
+
+        async function editHandler(content) {
+            const res = await fetch(`/api/comments/${commentId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ content }),
+            });
+            const statusCode = res.status;
+            const data = await res.json();
+            if (data.success) {
+                // toast here
+            } else {
+                if (statusCode === 401) {
+                    window.location.href = '/auth/login';
+                    return;
+                } else {
+                    // err msg handle here
+                }
+            }
+        }
+
+        function closeForm() {
+            commentFormEl.reset();
+            commentFormEl.classList.add('d-none');
+            document.body.appendChild(commentFormEl);
+            currentCommentEl.classList.remove('d-none');
+            currentCommentEl = null;
+        }
+
+        // ---- Delete comment
+        $('#delete-comment-modal').on('show.bs.modal', function (event) {
+            const button = $(event.relatedTarget);
+            commentId = button.data('id');
+        });
+
+        btnDeleteCommentConfirmEl.onclick = async function () {
+            try {
+                const res = await fetch(`/api/comments/${commentId}`, {
+                    method: 'DELETE',
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    // toast here
+                } else {
+                    // error msg handle here
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Có lỗi xảy ra khi xóa bình luận!');
+            }
+        };
+
+
+        // socket
+        const socket = io();
+        socket.on('new-comment', (data) => {
+            if (data.postId !== postId) return;
+            const currentUser = <%- JSON.stringify(currentUser || null) %>;
+            const html = renderComment(data.comment, currentUser);
+            commentsListEl.insertAdjacentHTML('afterbegin', html);
+            formCreateEl.reset();
+            createErrorMsgEl.innerHTML = '';
+        });
+
+        socket.on('reply-comment', (data) => {
+            const parentEl = document.querySelector(`#comment-${data.parentId}`);
+            if (parentEl) {
+                const currentUser = <%- JSON.stringify(currentUser || null) %>;
+                const html = renderComment(data.comment, currentUser);
+                parentEl.querySelector('.replies-list').insertAdjacentHTML('afterbegin', html);
+                closeForm();
+            }
+        });
+
+        socket.on('update-comment', (data) => {
+            const el = document.querySelector(`#comment-content-${data.commentId}`);
+            if (el) {
+                el.textContent = data.content;
+                closeForm();
+            }
+        });
+
+        socket.on('delete-comment', (data) => {
+            const el = document.querySelector(`#comment-${data.commentId}`);
+            if (el) {
+                el.remove();
+                const modal = bootstrap.Modal.getInstance(document.getElementById('delete-comment-modal'));
+                modal.hide();
+            }
+        });
+
+
+    });
+</script>

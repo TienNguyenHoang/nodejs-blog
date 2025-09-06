@@ -1,89 +1,93 @@
 <main class="container py-5">
-    <% if (totalPosts > 0) { %>
-    <form name="container-form" method="post" action="/posts/handle-form-actions">
-        <div>
-            <h2 class="mb-3">
-                <%= search === '' ? 'Bài viết của tôi' : 'Có '+ totalPosts +' bài viết được tìm thấy!'%>
-            </h2>
+    <h2 class="mb-3">Bài viết của tôi</h2>
 
-            <a href="/me/trash/posts">Thùng rác (<%= deletedCount %>)</a>
-        </div>
+    <% if (totalDocs > 0) { %>
+    <div>
+        <% if (search !== '') { %>
+        <h6 class="mb-3 text-muted"><%= 'Có '+ totalDocs +' bài viết được tìm thấy!'%></h6>
+        <% } %>
 
-        <table class="table mt-4 table-striped table-light">
-            <thead>
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Tiêu đề</th>
-                    <th scope="col">Tags</th>
-                    <th scope="col">Thể loại</th>
-                    <th scope="col">Ngày tạo</th>
-                    <th scope="col">Ngày chỉnh sửa</th>
-                    <th scope="col">Thao tác</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% posts.forEach((post, index) => { %>
-                <tr>
-                    <th scope="row"><%= (currentPage-1) * 5 + (index+1) %></th>
-                    <td><%= post.title %></td>
-                    <td>
-                        <% post.tags.forEach((tag, index) => { %>
-                        <span class="badge bg-primary text-center"><%= tag%></span>
-                        <% }) %>
-                    </td>
-                    <td><%= post.category %></td>
-                    <td><%= new Date(post.createdAt).toLocaleDateString("vi-VN") %></td>
-                    <td><%= new Date(post.updatedAt).toLocaleDateString("vi-VN") %></td>
-                    <td>
-                        <a href="/posts/<%= post.slug %>" class="btn btn-link">Xem</a>
-                        <a href="/posts/<%= post._id %>/edit" class="btn btn-link">Sửa</a>
-                        <a
-                            href="#"
-                            class="btn btn-link"
-                            data-bs-toggle="modal"
-                            data-id="<%= post._id %>"
-                            data-bs-target="#delete-post-modal"
-                            >Xóa</a
-                        >
-                    </td>
-                </tr>
-                <% }) %>
-            </tbody>
-        </table>
-        <nav aria-label="Page navigation example">
-            <ul class="pagination justify-content-center">
-                <li class="page-item">
+        <a href="/me/trash/posts">Thùng rác (<%= deletedCount %>)</a>
+    </div>
+
+    <table class="table mt-4 table-striped table-light">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Tiêu đề</th>
+                <th scope="col">Tags</th>
+                <th scope="col">Thể loại</th>
+                <th scope="col">Ngày tạo</th>
+                <th scope="col">Ngày chỉnh sửa</th>
+                <th scope="col">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% data.forEach((post, index) => { %>
+            <tr>
+                <th scope="row"><%= (currentPage-1) * 5 + (index+1) %></th>
+                <td><%= post.title %></td>
+                <td>
+                    <% post.tags.forEach((tag, index) => { %>
+                    <span class="badge bg-primary text-center"><%= tag%></span>
+                    <% }) %>
+                </td>
+                <td><%= post.category %></td>
+                <td><%= new Date(post.createdAt).toLocaleDateString("vi-VN") %></td>
+                <td><%= new Date(post.updatedAt).toLocaleDateString("vi-VN") %></td>
+                <td>
+                    <a href="/posts/<%= post.slug %>" class="btn btn-link">Xem</a>
+                    <a href="/posts/<%= post._id %>/edit" class="btn btn-link">Sửa</a>
                     <a
-                        class="page-link <%= currentPage > 1 ? '' : 'disabled'%>"
-                        href="/me/stored/posts?page=<%= currentPage > 1 ? currentPage - 1 : 1 %>&search=<%= search %>"
-                        aria-label="Previous"
+                        href="#"
+                        class="btn btn-link"
+                        data-bs-toggle="modal"
+                        data-id="<%= post._id %>"
+                        data-bs-target="#delete-post-modal"
+                        >Xóa</a
                     >
-                        <span aria-hidden="true">&laquo;</span>
-                    </a>
-                </li>
-                <% for(let i = 1; i <= totalPages; i++) { %>
-                <li class="page-item">
-                    <a
-                        class="page-link <%= i === currentPage ? 'active' : '' %>"
-                        href="/me/stored/posts?page=<%= i %>&search=<%= search %>"
-                        ><%= i%></a
-                    >
-                </li>
-                <% } %>
-                <li class="page-item">
-                    <a
-                        class="page-link <%= currentPage < totalPages ? '' : 'disabled'%>"
-                        href="/me/stored/posts?page=<%= currentPage < totalPages ? currentPage + 1 : 1 %>&search=<%= search %>"
-                        aria-label="Next"
-                    >
-                        <span aria-hidden="true">&raquo;</span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
-    </form>
+                </td>
+            </tr>
+            <% }) %>
+        </tbody>
+    </table>
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+            <li class="page-item">
+                <a
+                    class="page-link <%= currentPage > 1 ? '' : 'disabled'%>"
+                    href="/me/stored/posts?page=<%= currentPage > 1 ? currentPage - 1 : 1 %>&search=<%= search %>"
+                    aria-label="Previous"
+                >
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            <% for(let i = 1; i <= totalPages; i++) { %>
+            <li class="page-item">
+                <a
+                    class="page-link <%= i === currentPage ? 'active' : '' %>"
+                    href="/me/stored/posts?page=<%= i %>&search=<%= search %>"
+                    ><%= i%></a
+                >
+            </li>
+            <% } %>
+            <li class="page-item">
+                <a
+                    class="page-link <%= currentPage < totalPages ? '' : 'disabled'%>"
+                    href="/me/stored/posts?page=<%= currentPage < totalPages ? currentPage + 1 : 1 %>&search=<%= search %>"
+                    aria-label="Next"
+                >
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
     <% } else { %>
-    <h1 class="mx-auto text-center">Không tìm thấy bài viết nào.</h1>
+    <% if (search === '') { %>
+    <h4 class="mx-auto text-center">Chưa có bài viết nào. <a href="/posts/create">Tạo bài viết ngay</a></h4>
+    <% } else { %>
+    <h4 class="mx-auto text-center">Không tìm thấy bài viết nào</h4>
+    <% } %>
     <% } %>
 </main>
 

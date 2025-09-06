@@ -1,8 +1,14 @@
 <main class="container py-5">
-    <% if (totalPosts > 0) { %>
     <div>
         <a href="/me/stored/posts">Danh sách bài viết</a>
-        <h2 class="mb-3"><%= search === '' ? 'Bài viết đã xóa' : 'Có '+ totalPosts +' bài viết được tìm thấy!'%></h2>
+        <h2 class="mb-3">Bài viết đã xóa</h2>
+    </div>
+
+    <% if (totalDocs > 0) { %>
+    <div>
+        <% if (search !== '') { %>
+        <h6 class="mb-3 text-muted"><%= 'Có '+ totalDocs +' bài viết được tìm thấy!'%></h6>
+        <% } %>
     </div>
 
     <table class="table mt-4 table-striped table-light">
@@ -19,7 +25,7 @@
             </tr>
         </thead>
         <tbody>
-            <% posts.forEach((post, index) => { %>
+            <% data.forEach((post, index) => { %>
             <tr>
                 <th scope="row"><%= (currentPage-1) * 5 + (index+1) %></th>
                 <td><%= post.title %></td>
@@ -79,7 +85,11 @@
         </ul>
     </nav>
     <% } else { %>
-    <h3 class="mx-auto text-center">Thùng rác trống. <a href="/me/stored/posts">Danh sách bài viết</a></h3>
+    <% if (search === '') { %>
+    <h4 class="mx-auto text-center">Thùng rác trống!</h4>
+    <% } else { %>
+    <h4 class="mx-auto text-center">Không tìm thấy bài viết nào!</h4>
+    <% } %>
     <% } %>
 </main>
 

@@ -1,10 +1,10 @@
 <div class="d-block w-75 mx-auto mt-5">
-    <% if (totalPosts > 0) { %>
+    <% if (totalDocs > 0) { %>
     <h2 class="mb-3">
-        <%= search === '' ? 'Danh sách bài viết' : 'Có '+ totalPosts +' bài viết được tìm thấy!'%>
+        <%= search === '' ? 'Danh sách bài viết' : 'Có '+ totalDocs +' bài viết được tìm thấy!'%>
     </h2>
     <ul class="list-unstyled">
-        <% if (posts.length > 0) { %> <% posts.forEach(post => { %>
+        <% if (data.length > 0) { %> <% data.forEach(post => { %>
         <li class="card mb-3 h-75">
             <div class="row g-0">
                 <div class="col-md-12">

@@ -6,7 +6,7 @@ import bcrypt from 'bcryptjs';
 import Post from '../models/Post.js';
 import User from '../models/User.js';
 
-import { getPaginatedPosts } from '../../helpers/pagination.js';
+import { getPaginatedData } from '../../helpers/pagination.js';
 
 export async function showEditProfile(req, res, next) {
     try {
@@ -78,7 +78,7 @@ export async function updateProfile(req, res, next) {
         user.bio = req.body.bio;
 
         if (req.file) {
-            if (user.avatar && !user.avatar.includes('default-avatar.png')) {
+            if (user.avatar && !user.avatar.includes('default-avatar.jpg')) {
                 const oldPath = path.join('src', 'public', user.avatar);
                 fs.unlink(oldPath, (err) => {
                     if (err) {
@@ -158,27 +158,43 @@ export async function handleChangePassword(req, res, next) {
 }
 
 export async function storePosts(req, res, next) {
-    const queryExtra = { author: req.session.user.id };
-    Promise.all([getPaginatedPosts(req, queryExtra), Post.countDocumentsWithDeleted({ deleted: true })])
-        .then(([data, deletedCount]) => {
-            res.render('me/stored-posts', {
-                title: 'Bài viết của tôi',
-                activePage: null,
-                deletedCount,
-                ...data,
-            });
-        })
-        .catch(next);
+    try {
+        const search = req.query.search || '';
+        const query = { title: { $regex: search, $options: 'i' }, author: req.session.user.id };
+
+        const result = await getPaginatedData(req, Post, query, {
+            limit: 5,
+        });
+
+        const deletedCount = await Post.countDocumentsWithDeleted({ deleted: true });
+
+        res.render('me/stored-posts', {
+            title: 'Bài viết của tôi',
+            activePage: null,
+            deletedCount,
+            search,
+            ...result,
+        });
+    } catch (err) {
+        next(err);
+    }
 }
 
 export async function trashPosts(req, res, next) {
     try {
-        const queryExtra = { author: req.session.user.id };
-        const data = await getPaginatedPosts(req, queryExtra, { onlyDeleted: true });
+        const search = req.query.search || '';
+        const query = { title: { $regex: search, $options: 'i' }, author: req.session.user.id };
+
+        const result = await getPaginatedData(req, Post, query, {
+            onlyDeleted: true,
+            limit: 5,
+        });
+
         res.render('me/trash-posts', {
             title: 'Thùng rác',
             activePage: null,
-            ...data,
+            search,
+            ...result,
         });
     } catch (err) {
         next(err);

@@ -5,7 +5,9 @@ import MongoStore from 'connect-mongo';
 import flash from 'connect-flash';
 import methodOverride from 'method-override';
 import morgan from 'morgan';
+import { Server } from 'socket.io';
 import path from 'path';
+import http from 'http';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -19,6 +21,9 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+const server = http.createServer(app);
+const io = new Server(server);
 
 app.use(express.static(path.join(__dirname, 'public')));
 // app.use(morgan('combined'));
@@ -64,8 +69,29 @@ app.set('layout', 'layouts/main');
 
 route(app);
 
+io.on('connection', (socket) => {
+    console.log('Client connected:', socket.id);
+
+    // Tham gia room theo postId
+    socket.on('join-post', (postId) => {
+        socket.join(postId);
+        console.log(`Socket ${socket.id} joined post ${postId}`);
+    });
+
+    // Rời room
+    socket.on('leave-post', (postId) => {
+        socket.leave(postId);
+    });
+
+    socket.on('disconnect', () => {
+        console.log('Client disconnected:', socket.id);
+    });
+});
+
+app.set('io', io);
+
 db.connect();
 
-app.listen(port, () => {
+server.listen(port, () => {
     console.log(`App listening on port ${port}`);
 });

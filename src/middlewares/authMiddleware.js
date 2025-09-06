@@ -2,7 +2,9 @@ export function isAuthenticated(req, res, next) {
     if (req.session.user) {
         return next();
     }
-    res.redirect('/auth/login');
+    req.baseUrl.includes('api')
+        ? res.status(401).json({ success: false, message: 'Bạn cần đăng nhập!' })
+        : res.redirect('/auth/login');
 }
 
 export function guestRoute(req, res, next) {

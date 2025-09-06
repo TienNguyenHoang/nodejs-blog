@@ -1,0 +1,6 @@
+<% comments.forEach((comment, index) => { %>
+<%- include('comment-item', { comment }) %>
+<% if (index < comments.length - 1) { %>
+<hr />
+<% } %>
+<% }) %>

@@ -38,8 +38,11 @@ const PostSchema = new Schema(
     },
 );
 
-PostSchema.pre('remove', async function (next) {
-    await this.model('Comment').deleteMany({ post: this._id });
+PostSchema.pre('deleteOne', { document: false, query: true }, async function (next) {
+    const filter = this.getFilter();
+    if (filter._id) {
+        await mongoose.model('Comment').deleteMany({ post: filter._id });
+    }
     next();
 });
 
